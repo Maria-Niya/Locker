@@ -25,4 +25,28 @@ if [[ "$1" == "-lock" || "$1" == "-l" ]]; then
     else
         echo "No such file"
     fi
+
+elif [[ "$1" == '-unlock' || "$1" == "-u" ]]; then
+    read -p "enter the file name you wish to decrypt without .enc: "  file 
+    ls | grep "$file"
+
+    if [[ "$?" -eq 0 ]]; then 
+        echo "Enter the password" 
+        read -s password
+        openssl enc -d -aes-256-cbc -pbkdf2 \
+        -pass pass:"$password" \
+        -in "$file".enc -out "$file"
+
+        if [[ "$?" -eq 0 ]]; then 
+            echo "File unlocked"
+            rm "$file".enc
+        else
+            echo "Wrong Password"
+        fi
+
+    else
+        echo "File doesnt exist"
+    
+    fi
+
 fi
