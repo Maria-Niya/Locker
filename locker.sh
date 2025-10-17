@@ -1,4 +1,8 @@
 #!/usr/bin/bash
+RED='\033[1;31m'    # Errors
+GREEN='\033[1;32m'  # Success
+CYAN='\033[1;36m'   # Prompts
+NC='\033[0m'       #no colour
 
 usage() {
     clear
@@ -17,65 +21,65 @@ usage() {
 }
 
 if [[ "$1" == "-lock" || "$1" == "-l" ]]; then 
-    read -p "enter the file name you wish to encrypt: "  file 
+    read -p "$(echo -e "${CYAN}enter the file name you wish to encrypt: ${NC}")"  file 
 
     if [[ ! -f "$file" ]]; then
-        echo "No such file"
+        echo -e "${RED}Error: No such file$"
         exit 1
     fi
-    echo "File exists"
+    echo -e "${GREEN}File exists${NC}"
 
-    read -s -p "Enter your password here: " password
+    read -s -p "$(echo -e "${CYAN}Enter your password here:${NC}") " password
     echo     
-    read -s -p "Enter your password again: " confirm_pass
+    read -s -p "$(echo -e "${CYAN}Enter your password again:${NC}") " confirm_pass
     echo
 
     if [[ "$password" != "$confirm_pass" ]]; then
-        echo "Passwords do not match"
+        echo -e "${RED}Passwords do not match${NC}"
         exit 1
     fi
     echo 
 
-    echo "Encrypting File....."
+    echo -e "${CYAN}Encrypting File.....${NC}"
     if openssl enc -aes-256-cbc -pbkdf2 -salt \
         -pass pass:"$password" \
         -in "$file" -out "$file".enc; then
         
         rm -f "$file"
-        echo "File encrypted successfully: $file.enc"
+        echo -e "${GREEN}File encrypted successfully: $file.enc${NC}"
 
     else
-        echo "Encryption failed"
+        echo -e "${RED}Encryption failed ${NC}"
     fi
 
 elif [[ "$1" == '-unlock' || "$1" == "-u" ]]; then
-    read -p "enter the file name you wish to decrypt without .enc: "  file 
+    read -p "$(echo -e "${CYAN}enter the file name you wish to decrypt without .enc:${NC}") "  file 
 
     if [[ ! -f "$file.enc" ]]; then 
-        echo "No such file"
+        echo _e "${RED}No such file${NC}"
         exit 1
     fi
     
         echo 
-        read -s -p "Enter the password: " password
+        read -s -p "$(echo -e "${CYAN}Enter the password: ${NC}")" password
         echo
 
-        echo "Decrypting file...."
+        echo -e "${CYAN}Decrypting file....${NC}"
         if openssl enc -d -aes-256-cbc -pbkdf2 \
             -pass pass:"$password" \
             -in "$file".enc -out "$file"; then 
 
             rm -f "$file".enc
-            echo "File decrypted successfully"
+            echo -e"${GREEN}File decrypted successfully ${NC}"
         else
             rm -f "$file"
-            echo "Wrong Password"
+            echo -e"${RED}Wrong Password ${NC}"
         fi
 
 elif [[ -z "$1" || "$1" == '-h' ]]; then 
     usage
 
 else
-    echo "Invalid option."
+    echo -e"${RED}Invalid option.${NC}"
 
 fi
